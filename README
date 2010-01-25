@@ -1,0 +1,15 @@
+This is a small but useful module for Kohana 3.
+
+Just extend Controller_Xhtml and use the singletons Xhtml and Head where required.
+See the code for details.
+I'll provide examples and other documentation soon.
+
+Version 0.1 (2010-01-25)
+ - Basic operation
+ - Xhtml singleton class
+ - Head singleton class
+ - Abstract Controller_Xhtml extending Controller_Template
+ - Mapping controller $template to body
+
+
+
