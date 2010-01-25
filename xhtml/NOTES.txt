@@ -1,0 +1,17 @@
+2010-01-16
+----------
+
+Added default template
+Added controller
+Added globally bound view variable html_title
+Added controller variable html_doctype
+
+2010-01-23
+----------
+Renamed module to xhtml
+
+2010-01-25
+----------
+Refactored all of the code
+Documented
+Version 0.1
