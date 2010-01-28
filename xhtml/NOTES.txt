@@ -15,3 +15,64 @@ Renamed module to xhtml
 Refactored all of the code
 Documented
 Version 0.1
+
+2010-01-26
+----------
+Controller_Xhtml
+ - Adjusted to not use empty() as a test for injecting the controller defaults
+Version 0.1.1
+
+2010-01-28
+----------
+Controller_Xhtml:
+ - Added a check for when auto_render is set, but no template defined, throw exception
+ - Added property for ajax and ajax detecting code (detects ajax and internal as ajax)
+Version 0.2
+
+DONE
+----
+1. Controller variable checking
+
+If no template variable is specified, get an error indicating xhtml is not defined.
+Need to check what happens to the regular controller_template in this situation.
+Exception Code:
+throw new Kohana_View_Exception('The requested view :file could not be found', array(':file' => $file,));
+
+What happens with template / xhtml
+
+ - Controller autorender, template, action using template
+		fine / fine - OKAY
+ - Controller autorender, template, action no autorender, using response
+		fine / fine (inner) - OKAY
+ - Controller autorender, bad template, action using template
+		The requested view template could not be found / The requested view could not be found - OKAY
+ - Controller autorender, no template, action using template
+		The requested view template could not be found / Undefined variable xhtml - FIXED
+ - Controller autorender, bad template, action no autorender, using response
+		The requested view template could not be found / the requested view could not be found - OKAY
+ - Controller autorender, no template, action no autorender, using response
+		The requested view template could not be found / fine (inner) - OKAY
+ - Controller no autorender, template, action using template
+		Attempt to assign property of non object / Attempt to assign property of non object - OKAY
+ - Controller no autorender, template, action no autorender, using response
+		fine / fine (inner) - OKAY
+ - Controller no autorender, bad template, action using template
+		Attempt to assign property of non object / Attempt to assign property of non object - OKAY
+ - Controller no autorender, no template, action using template
+		Attempt to assing property of non object / Attempt to assign property of non object - OKAY
+ - Controller no autorender, bad template, action no autorender, using response
+		fine / fine (inner) - OKAY
+ - Controller no autorender, no template, action no autorender, using response
+		fine / fine (inner) - OKAY
+ 
+ Result - This operates the same
+
+2. Detecting ajax
+
+Can use this: Request::$is_ajax OR $this->request !== Request::instance()
+to detect for ajax / internal requests.
+Use a controller property to store an ajax flag.
+
+TODO
+----
+

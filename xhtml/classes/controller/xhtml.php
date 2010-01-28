@@ -44,33 +44,51 @@ abstract class Controller_Xhtml extends Controller_Template {
 	/**
 	* @var array Head meta tags
 	*/
-	protected $meta = array();
+	protected $meta;
 
 	/**
 	* @var array Head link tags
 	*/
-	protected $links = array();
+	protected $links;
 	
 	/**
 	* @var array Head style tags
 	*/
-	protected $styles = array();
+	protected $styles;
 	
 	/**
 	* @var array Head script tags
 	*/
-	protected $scripts = array();
+	protected $scripts;
 
 	/**
 	* @var array Head script blocks
 	*/
-	protected $codes = array();
+	protected $codes;
+	
+	/**
+	* @var boolean Ajax flag
+	*/
+	protected $ajax = false;
 
 	public function before()
 	{
-		parent::before();
 
-		// Get an instance the Xhtml class
+		if ($this->auto_render AND $this->template == 'xhtml/template')
+		{
+			throw new Kohana_Exception('No template has been set in the Xhtml Controller');
+		}
+
+		parent::before();
+		
+		// Detect ajax and internal requests
+		if (Request::$is_ajax OR $this->request !== Request::instance())
+		{
+			// This is an AJAX-like request
+			$this->ajax = true;
+		}
+
+		// Get an instance of the Xhtml class
 		$this->xhtml = Xhtml::instance();
 
 		// Fixed arrays of property names
@@ -78,18 +96,18 @@ abstract class Controller_Xhtml extends Controller_Template {
 		$head_properties = array('title', 'meta', 'links', 'styles', 'scripts', 'codes');
 
 		// Only use controller defaults for external requests
-		if ($this->request === Request::instance())
+		if ($this->ajax)
 		{
 			// Override Xhtml and Head singleton defaults with controller defaults
 			// NOTE: All singleton defaults are over written, arrays are not merged
 			foreach ($xhtml_properties as $key)
 			{
-				if (isset($this->{$key}) AND !empty($this->{$key}))
+				if (isset($this->{$key}))// AND !empty($this->{$key}))
 					Xhtml::${$key} = $this->{$key};
 			}
 			foreach ($head_properties as $key)
 			{
-				if (isset($this->{$key}) AND !empty($this->{$key}))
+				if (isset($this->{$key}))// AND !empty($this->{$key}))
 					Head::${$key} = $this->{$key};
 			}
 		}

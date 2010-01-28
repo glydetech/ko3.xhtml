@@ -10,6 +10,11 @@ Version 0.1 (2010-01-25)
  - Head singleton class
  - Abstract Controller_Xhtml extending Controller_Template
  - Mapping controller $template to body
+ 
+ Version 0.2 (2010-01-28)
+ - Adjusted defaults handling, now global configs are overwritten by controller properties
+ - Added an ajax property to the controller
+ - Added check for template property to before()
 
 
 
