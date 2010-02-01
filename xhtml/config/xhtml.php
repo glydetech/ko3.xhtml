@@ -22,6 +22,9 @@ return array(
 		// Additional attributes for the html tag
 		//'htmlatts'	=> array(),
 		
+		// Default page body
+		//'body'		=> 'default body',
+		
 		// Head defaults
 		'head' => array(
 		

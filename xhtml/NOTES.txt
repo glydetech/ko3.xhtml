@@ -29,50 +29,34 @@ Controller_Xhtml:
  - Added property for ajax and ajax detecting code (detects ajax and internal as ajax)
 Version 0.2
 
-DONE
-----
-1. Controller variable checking
+2010-01-30
+----------
+ - Added View_Head extended view class
+ - Added View_Xhtml extended view class
+Head
+ - Added isset and unset to handle arrays
+ - Added generated properties meta_extra and meta_all
+Xhtml
+ - Added isset and unset to handle arrays
+ - Added generated properties htmlatts_extra and htmlatts_all
+View_Head
+ - Added protected singleton property
+ - Added factory and constructor methods
+ - Added protected default data property and processing in constructor
+ - Added private array of static properties and binding in constructor
+ - Added magic methods (get, set, isset, unset)
+ - Added handling of static properties in magic methods
+ - Added handling of pass-through generated properties in __get
+View_Xhtml
+ - Same structure as View_Head
+Backed up this version
 
-If no template variable is specified, get an error indicating xhtml is not defined.
-Need to check what happens to the regular controller_template in this situation.
-Exception Code:
-throw new Kohana_View_Exception('The requested view :file could not be found', array(':file' => $file,));
+2010-02-01
+----------
+Recoded a new version excluding the property mapping
+Placed generated properties in correct positions
+Version 0.3
 
-What happens with template / xhtml
 
- - Controller autorender, template, action using template
-		fine / fine - OKAY
- - Controller autorender, template, action no autorender, using response
-		fine / fine (inner) - OKAY
- - Controller autorender, bad template, action using template
-		The requested view template could not be found / The requested view could not be found - OKAY
- - Controller autorender, no template, action using template
-		The requested view template could not be found / Undefined variable xhtml - FIXED
- - Controller autorender, bad template, action no autorender, using response
-		The requested view template could not be found / the requested view could not be found - OKAY
- - Controller autorender, no template, action no autorender, using response
-		The requested view template could not be found / fine (inner) - OKAY
- - Controller no autorender, template, action using template
-		Attempt to assign property of non object / Attempt to assign property of non object - OKAY
- - Controller no autorender, template, action no autorender, using response
-		fine / fine (inner) - OKAY
- - Controller no autorender, bad template, action using template
-		Attempt to assign property of non object / Attempt to assign property of non object - OKAY
- - Controller no autorender, no template, action using template
-		Attempt to assing property of non object / Attempt to assign property of non object - OKAY
- - Controller no autorender, bad template, action no autorender, using response
-		fine / fine (inner) - OKAY
- - Controller no autorender, no template, action no autorender, using response
-		fine / fine (inner) - OKAY
- 
- Result - This operates the same
 
-2. Detecting ajax
-
-Can use this: Request::$is_ajax OR $this->request !== Request::instance()
-to detect for ajax / internal requests.
-Use a controller property to store an ajax flag.
-
-TODO
-----
 

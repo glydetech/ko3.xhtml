@@ -70,7 +70,7 @@ class Xhtml {
 			
 			// Set defaults from config
 			$default = Kohana::config('xhtml.default');
-			foreach (array('doctype', 'langcode', 'htmlatts') as $key)
+			foreach (array('doctype', 'langcode', 'htmlatts', 'body') as $key)
 			{
 				if (isset($default[$key]) AND !empty($default[$key]))
 					self::${$key} = $default[$key];
@@ -110,10 +110,10 @@ class Xhtml {
 	{
 		switch ($key)
 		{
-			case 'xhtml_doctype':
-				return $this->_get_xhtml_doctype();
-			case 'xhtml_htmlatts':
-				return $this->_get_xhtml_htmlatts();
+			case 'htmlatts_extra':
+			case 'htmlatts_all':
+				$func = '_get_'.$key;
+				return $this->{$func}();
 		}
 		return self::${$key};
 	}
@@ -136,6 +136,10 @@ class Xhtml {
 	*/
 	public function __isset($key)
 	{
+		if (is_array(self::${$key}))
+		{
+			return ! empty(self::${$key}); 
+		}
 		return (isset(self::${$key}));
 	}
 
@@ -146,58 +150,15 @@ class Xhtml {
 	*/
 	public function __unset($key)
 	{
-		unset(self::${$key});
-	}
-
-	/**
-	* Magic method, returns the compiled html output
-	* @return  string
-	*/
-//  	public function __toString()
-//  	{
-//  		$html = $this->_get_xhtml_doctype();
-//  		$html .= '<html'.$this->_get_xhtml_htmlatts().'>';
-//  		$html .= '<head>'.$this->head.'</head>';
-//  		$html .= '<body>'.$this->body.'</body>';
-//  		$html .= '</html>';
-//  		return $html;
-//  	}
-
-	// Private methods
-	/**
-	* Returns an array of extra meta entries
-	* @return  array
-	*/
-	private function _get_xhtml_doctype()
-	{
-		switch (self::$doctype)
+		if (is_array(self::${$key}))
 		{
-			case xhtml::DOCTYPE_HTML_4_01_STRICT:
-				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">';
-			case xhtml::DOCTYPE_HTML_4_01_FRAMESET:
-				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">';
-			case xhtml::DOCTYPE_HTML_4_01_TRANSITIONAL:
-				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
-			case xhtml::DOCTYPE_XHTML_1_0_STRICT:
-				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-			case xhtml::DOCTYPE_XHTML_1_0_FRAMESET:
-				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">';
-			case xhtml::DOCTYPE_XHTML_1_0_TRANSITIONAL:
-				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
-			case xhtml::DOCTYPE_XHTML_1_1_STRICT:
-				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+			self::${$key} = array();
 		}
+		self::${$key} = NULL;
+		//unset(self::${$key});
 	}
 
- 	private function _get_xhtml_htmlatts()
- 	{
- 		return Html::attributes($this->_get_htmlatts_all());
- 	}
-
-	private function _get_htmlatts_all()
-	{
-		return Arr::merge(self::$htmlatts, $this->_get_htmlatts_extra());
-	}
+	// Private htmlatts methods - generated properties
 
 	private function _get_htmlatts_extra()
 	{
@@ -209,6 +170,11 @@ class Xhtml {
 		} 
 		$attributes_extra['lang'] = self::$langcode;
 		return $attributes_extra;
+	}
+
+	private function _get_htmlatts_all()
+	{
+		return Arr::merge(self::$htmlatts, $this->_get_htmlatts_extra());
 	}
 
 } // End Xhtml

@@ -97,8 +97,10 @@ class Head {
 	{
 		switch ($key)
 		{
+			case 'meta_extra':
 			case 'meta_all':
-				return $this->_get_meta_all();
+				$func = '_get_'.$key;
+				return $this->{$func}();
 		}	
 		return self::${$key};
 	}
@@ -121,6 +123,10 @@ class Head {
 	*/
 	public function __isset($key)
 	{
+		if (is_array(self::${$key}))
+		{
+			return ! empty(self::${$key}); 
+		}
 		return (isset(self::${$key}));
 	}
 
@@ -131,30 +137,13 @@ class Head {
 	*/
 	public function __unset($key)
 	{
-		unset(self::${$key});
+		if (is_array(self::${$key}))
+		{
+			self::${$key} = array();
+		}
+		self::${$key} = NULL;
+		//unset(self::${$key});
 	}
-
-	/**
-	* Magic method, returns the compiled html output
-	* @return  string
-	*/
-// 	public function __toString()
-// 	{
-// 		$html = '<head>';
-// 		$html .= '<title>'.self::$title.'</title>';
-// 		foreach ($this->_get_meta_all() as $key => $value)
-// 		  $html .= '<meta'.Html::attributes(array($key => $value)).' />';
-// 		foreach (self::$links as $key => $value)
-// 		  $html .= '<link'.Html::attributes($value).' />';
-// 		foreach (self::$styles as $key => $value)
-// 		  $html .= Html::style($value);
-// 		foreach (self::$scripts as $key => $value)
-// 		  $html .= Html::script($value);
-// 		foreach (self::$codes as $key => $value)
-// 		  $html .= '<script'.Html::attributes(array('type' => 'text/javascript')).' >'.$value.'</script>';
-// 		$html .= '</head>';
-// 		return $html;
-// 	}
 
 	// Private meta methods
 
