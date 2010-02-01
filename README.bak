@@ -15,7 +15,5 @@ Version 0.1 (2010-01-25)
  - Added an ajax property to the controller
  - Added check for template property to before()
 
-Version 0.3 (2010-02-01)
- - Recoded to use extended views instead of extended template controller
- 
+
 
