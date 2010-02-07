@@ -71,7 +71,7 @@ class Head {
 	}
 
 	/**
-	* Enforce singleton behaviour
+	* Constructor method, enforce singleton behaviour
 	* @return void
 	*/
 	final private function __construct()
@@ -79,7 +79,7 @@ class Head {
 	}
 
 	/**
-	* Enforce singleton behaviour
+	* Clone method, enforce singleton behaviour
 	* @return void
 	*/
 	final private function __clone()
@@ -90,15 +90,15 @@ class Head {
 
 	/**
 	* Magic method, gets overridden or static properties
-	* @param   string  Property name
-	* @return  mixed 	Property value
+	* @param string Property name
+	* @return mixed Property value
 	*/
 	public function __get($key)
 	{
 		switch ($key)
 		{
 			case 'meta_extra':
-			case 'meta_all':
+			//case 'meta_all':
 				$func = '_get_'.$key;
 				return $this->{$func}();
 		}	
@@ -107,9 +107,9 @@ class Head {
 	
 	/**
 	* Magic method, sets static properties
-	* @param   string  Property name
-	* @param   mixed   value
-	* @return  void
+	* @param string Property name
+	* @param mixed Property value
+	* @return void
 	*/
 	public function __set($key, $value)
 	{
@@ -118,8 +118,8 @@ class Head {
 
 	/**
 	* Magic method, determines if a static property is set and is not NULL.
-	* @param   string  Property name
-	* @return  boolean
+	* @param string Property name
+	* @return boolean
 	*/
 	public function __isset($key)
 	{
@@ -132,8 +132,8 @@ class Head {
 
 	/**
 	* Magic method, unsets a given static property
-	* @param   string  Property name
-	* @return  void
+	* @param string Property name
+	* @return void
 	*/
 	public function __unset($key)
 	{
@@ -144,13 +144,62 @@ class Head {
 		self::${$key} = NULL;
 		//unset(self::${$key});
 	}
+	
+	/**
+	* Magic method, returns the output of render(). If any exceptions are
+	* thrown, the exception output will be returned instead.
+	* @return  string
+	*/
+	public function __toString()
+	{
+		try
+		{
+			return $this->render();
+		}
+		catch (Exception $e)
+		{
+			// Display the exception message
+			Kohana::exception_handler($e);
+			return '';
+		}
+	}
+	
+	// Public methods
+
+	/**
+	* Returns the rendered head tag
+	* @param boolean echo result
+	* @return string
+	*/
+	public function render($output = false)
+	{
+		$close_single = (Xhtml::instance()->is_xhtml) ? ' />' : '>';
+		$html = '<head>';
+		$html .= '<title>'.$this->title.'</title>';
+		foreach ($this->meta_extra as $key => $value)
+			$html .= '<meta'.Html::attributes(array('http-equiv' => $key, 'content' => $value)).$close_single;
+		foreach ($this->meta as $key => $value)
+			$html .= '<meta'.Html::attributes(array('name' => $key, 'content' => $value)).$close_single;
+		foreach ($this->links as $value)
+			$html .= '<link'.Html::attributes($value).$close_single;
+		foreach ($this->styles as $value)
+			$html .= Html::style($value);
+		foreach ($this->scripts as $value)
+			$html .= Html::script($value);
+		foreach ($this->codes as $value)
+			$html .= '<script'.Html::attributes(array('type' => 'text/javascript')).'>//<![CDATA['."\n".$value."\n".'//]]></script>';
+		$html .= '</head>';
+		if ($output)
+			echo $html;
+		return $html;
+	}
 
 	// Private meta methods
 
 	/**
-	 * Returns an array of extra meta entries
-	 * @return  array
-	 */
+	* Returns an array of extra meta entries
+	* @return array
+	*/
 	private function _get_meta_extra()
 	{
 		// include detected headers specified
@@ -171,12 +220,12 @@ class Head {
 	
 	/**
 	* Returns an array of all meta entries
-	* @return  array
+	* @return array
 	*/
-	private function _get_meta_all()
-	{
-		return Arr::merge(self::$meta, $this->_get_meta_extra());
-	}
+// 	private function _get_meta_all()
+// 	{
+// 		return Arr::merge(self::$meta, $this->_get_meta_extra());
+// 	}
 
 // 	// Private script methods
 // 

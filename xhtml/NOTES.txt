@@ -57,6 +57,36 @@ Recoded a new version excluding the property mapping
 Placed generated properties in correct positions
 Version 0.3
 
+2010-02-02
+----------
+View_Head
+ - Created a render method
+ - Removed the $file parameter handling in constructor and factory
+ - Removed the xhtml\views\head.php view file
+ - Changed to a stand alone class
+ - Added __tostring method
+View_Xhtml
+ - Created a render function
+ - In constructor, used the $file parameter to load a View into body
+ - Removed the xhtml\views\template.php view file
+ 
+Version 0.3.1
 
+2010-02-06
+----------
+Head
+ - Moved the render and __tostring functions here
+ - Included the head tag into the rendered output
+ - Wrapped inline scripts (codes) with CDATA
+ - Changed meta_extra to use http-equiv in place of name
+ - Removed meta_all property
+ - In render, used is_xhtml to determine solo tag closing style ( ' />' or '>' )
+Xhtml
+ - Moved the render and __tostring functions here
+ - Added the xhtml_doctype getter
+ - Added the file parameter for loading a view into the body tag
+ - In htmlatts dont use both lang and xml:lang
+ - Added is_xhtml property
+ - In render, detect accept headers for determining content type
 
-
+Version 0.4

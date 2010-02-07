@@ -58,12 +58,12 @@ class Xhtml {
 	* Get the singleton instance of Xhtml.
 	* @return  Xhtml
 	*/
-	public static function instance()
+	public static function instance($file = NULL)
 	{
 		if (self::$_instance === NULL)
 		{
 			// Create a new instance
-			self::$_instance = new self;
+			self::$_instance = new self($file);
 			
 			// Set instance of Head class
 			self::$head = Head::instance();
@@ -75,10 +75,10 @@ class Xhtml {
 				if (isset($default[$key]) AND !empty($default[$key]))
 					self::${$key} = $default[$key];
 			}
-			
+
 			// overwrite langcode from i18n if not set
- 			if (!isset(self::$langcode))
- 				self::$langcode = i18n::$lang;
+			if (!isset(self::$langcode))
+				self::$langcode = i18n::$lang;
 		}
 		return self::$_instance;
 	}
@@ -87,8 +87,12 @@ class Xhtml {
 	* Enforce singleton behaviour
 	* @return void
 	*/
-	final private function __construct()
+	final private function __construct($file = NULL)
 	{
+		if ($file !== NULL)
+		{
+			$this->body = View::factory($file);
+		}
 	}
 
 	/**
@@ -110,8 +114,10 @@ class Xhtml {
 	{
 		switch ($key)
 		{
+			case 'xhtml_doctype':
 			case 'htmlatts_extra':
 			case 'htmlatts_all':
+			case 'is_xhtml':
 				$func = '_get_'.$key;
 				return $this->{$func}();
 		}
@@ -158,23 +164,101 @@ class Xhtml {
 		//unset(self::${$key});
 	}
 
-	// Private htmlatts methods - generated properties
+	/**
+	* Magic method, returns the output of render(). If any exceptions are
+	* thrown, the exception output will be returned instead.
+	* @return  string
+	*/
+	public function __toString()
+	{
+		try
+		{
+			return $this->render();
+		}
+		catch (Exception $e)
+		{
+			// Display the exception message
+			Kohana::exception_handler($e);
+			return '';
+		}
+	}
+	
+	// Public methods
+
+	/**
+	* Returns the rendered head tag
+	* @param boolean echo result
+	* @return string
+	*/
+	public function render($output = false)
+	{
+		// Set content-type header
+		if (self::instance()->is_xhtml
+		AND Request::accept_type('application/xhtml+xml') > 0)
+		{
+			Request::instance()->headers['Content-Type'] = 'application/xhtml+xml; charset='.Kohana::$charset;
+		}
+	
+		$html = $this->xhtml_doctype;
+		$html .= '<html'.Html::attributes($this->htmlatts_all).'>';
+		$html .= Head::instance();
+		$html .= '<body>'.$this->body.'</body>';
+		$html .= '</html>';
+		if ($output)
+			echo $html;
+		return $html;
+	}
+
+	// Private methods - generated properties
+	
+	/**
+	* Returns the doctype string
+	* @return string
+	*/
+	private function _get_xhtml_doctype()
+	{
+		switch ($this->doctype)
+		{
+			case xhtml::DOCTYPE_HTML_4_01_STRICT:
+				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">';
+			case xhtml::DOCTYPE_HTML_4_01_FRAMESET:
+				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">';
+			case xhtml::DOCTYPE_HTML_4_01_TRANSITIONAL:
+				return '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+			case xhtml::DOCTYPE_XHTML_1_0_STRICT:
+				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+			case xhtml::DOCTYPE_XHTML_1_0_FRAMESET:
+				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">';
+			case xhtml::DOCTYPE_XHTML_1_0_TRANSITIONAL:
+				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+			case xhtml::DOCTYPE_XHTML_1_1_STRICT:
+				return '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+		}
+	}
 
 	private function _get_htmlatts_extra()
 	{
 		$attributes_extra = array();
-		if (substr(self::$doctype, 0, 1) == 'X')
+		if ($this->is_xhtml)
 		{
 			$attributes_extra['xmlns'] = 'http://www.w3.org/1999/xhtml';
 			$attributes_extra['xml:lang'] = self::$langcode;
-		} 
-		$attributes_extra['lang'] = self::$langcode;
+		}
+		else
+		{
+			$attributes_extra['lang'] = self::$langcode;
+		}
 		return $attributes_extra;
 	}
 
 	private function _get_htmlatts_all()
 	{
 		return Arr::merge(self::$htmlatts, $this->_get_htmlatts_extra());
+	}
+	
+	private function _get_is_xhtml()
+	{
+		return substr(self::$doctype, 0, 1) == 'X';
 	}
 
 } // End Xhtml
