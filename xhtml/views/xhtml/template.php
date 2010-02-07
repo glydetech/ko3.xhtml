@@ -1,9 +1,0 @@
-<?=$xhtml_doctype;?>
-<html<?=Html::attributes($xhtml->htmlatts_all);?>>
-<head>
-<?=$head;?>
-</head>
-<body>
-<?=$body;?>
-</body>
-</html>
