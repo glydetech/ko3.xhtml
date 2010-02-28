@@ -313,7 +313,7 @@ class Head {
  			Kohana::cache($key, $data, Kohana::config('xhtml.cache_lifetime'));
  			$cache = Kohana::cache($key);
  		}
-		return 'xhtml/cache/'.$key.'/xhtml.cache.js';
+		return 'xhtml/cache/'.$key.'js';
 	}
 
 	/**
@@ -345,7 +345,7 @@ class Head {
  			Kohana::cache($key, $data, Kohana::config('xhtml.cache_lifetime'));
  			$cache = Kohana::cache($key);
  		}
-		return 'xhtml/cache/'.$key.'/xhtml.cache.css';
+		return 'xhtml/cache/'.$key.'css';
 	}
 
 	/**

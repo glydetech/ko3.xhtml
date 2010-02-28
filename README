@@ -32,3 +32,6 @@ Version 0.5.1 (2010-02-28)
  - Added merged and cached scripts and styles
  - Added controller for serving caches
  - Added tidy
+ 
+Version 0.5.2 (2010-02-28)
+ - Quick fix for caches using Kohanas default route setup

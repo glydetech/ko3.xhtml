@@ -130,11 +130,21 @@ Config file
  - Added cache_style option
 Head
  - Added handling for style caching
-Xhtml_Controller
+Controller_Xhtml
  - Added correct headers for css
  
 Version 0.5.1
 
+2010-02-28
+----------
+Head
+ - Modified _get_cached_scripts() to append 'js' instead of '/xhtml.cache.js'
+ - Modified _get_cached_styles() to append 'css' instead of '/xhtml.cache.css'
+Controller_Xhtml
+ - Modified this to parse the supplied key and extension correctly
+ 
+Version 0.5.2
+ 
 TODO:
 -----
  - Cache files are not being cleared because the key is generated from the javascript - would generating from the uri be better?
