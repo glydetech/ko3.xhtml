@@ -18,7 +18,7 @@ class Head {
 	/**
 	* @var array Head meta tags
 	*/
-	public static $meta = array();
+	public static $metas = array();
 
 	/**
 	* @var array Head link tags
@@ -51,22 +51,25 @@ class Head {
 
 	/**
 	* Get the singleton instance of Head.
+	* @param array Default values
 	* @return Head
 	*/
-	public static function instance()
+	public static function instance(array $data = array())
 	{
+		// Check if instance exists
 		if (self::$_instance === NULL)
 		{
+
 			// Create a new instance
 			self::$_instance = new self;
-			
-			// Set defaults from config
-			$default = Kohana::config('xhtml.default.head');
-			foreach ($default as $key => $value)
-			{
-			  self::${$key} = $value;
-			}
+
+			// Add values from config file
+			self::$_instance->add(Kohana::config('xhtml.default.head'));
 		}
+
+		// Add values from supplied data
+		self::$_instance->add($data);
+
 		return self::$_instance;
 	}
 
@@ -98,13 +101,17 @@ class Head {
 		switch ($key)
 		{
 			case 'meta_extra':
+			case 'merged_scripts':
+			case 'cached_scripts':
+			case 'merged_styles':
+			case 'cached_styles':
 			//case 'meta_all':
 				$func = '_get_'.$key;
 				return $this->{$func}();
 		}	
 		return self::${$key};
 	}
-	
+
 	/**
 	* Magic method, sets static properties
 	* @param string Property name
@@ -144,7 +151,7 @@ class Head {
 		self::${$key} = NULL;
 		//unset(self::${$key});
 	}
-	
+
 	/**
 	* Magic method, returns the output of render(). If any exceptions are
 	* thrown, the exception output will be returned instead.
@@ -163,7 +170,26 @@ class Head {
 			return '';
 		}
 	}
-	
+
+	/**
+	* Magic method, provides the add_*() methods
+	* @param mixed Method name
+	* @param mixed Arguments
+	* @return Head
+	*/
+	public function __call($name, $args = NULL)
+	{
+		if (substr($name, 0, 4) == 'add_')
+		{
+			$key = substr($name, 4);
+			if (is_array($this->{$key.'s'}))
+			{
+				self::${$key.'s'}[$args[0]] = $args[1];
+			}
+		}
+		return $this;
+	}
+
 	// Public methods
 
 	/**
@@ -178,20 +204,79 @@ class Head {
 		$html .= '<title>'.$this->title.'</title>';
 		foreach ($this->meta_extra as $key => $value)
 			$html .= '<meta'.Html::attributes(array('http-equiv' => $key, 'content' => $value)).$close_single;
-		foreach ($this->meta as $key => $value)
+		foreach ($this->metas as $key => $value)
 			$html .= '<meta'.Html::attributes(array('name' => $key, 'content' => $value)).$close_single;
 		foreach ($this->links as $value)
 			$html .= '<link'.Html::attributes($value).$close_single;
-		foreach ($this->styles as $value)
-			$html .= Html::style($value);
-		foreach ($this->scripts as $value)
-			$html .= Html::script($value);
-		foreach ($this->codes as $value)
-			$html .= '<script'.Html::attributes(array('type' => 'text/javascript')).'>//<![CDATA['."\n".$value."\n".'//]]></script>';
+			
+		// styles
+		if (Kohana::config('xhtml.cache_styles'))
+		{
+			$html .= Html::style($this->cached_styles);
+		}
+		else
+		{		
+			foreach ($this->styles as $value)
+				$html .= Html::style($value);
+		}
+		
+		// scripts
+		if (Kohana::config('xhtml.cache_scripts'))
+		{
+			$html .= Html::script($this->cached_scripts);
+		}
+		else
+		{
+			foreach ($this->scripts as $file)
+				$html .= Html::script($file);
+			foreach ($this->codes as $code)
+				$html .= '<script'.Html::attributes(array('type' => 'text/javascript')).'>//<![CDATA['."\n".$code."\n".'//]]></script>';
+		}
+		
 		$html .= '</head>';
 		if ($output)
 			echo $html;
 		return $html;
+	}
+
+	/**
+	* Adds data, handling a single value or array of values, merging arrays
+	* @param mixed Value name or an array of values
+	* @param mixed Value data
+	* @return Head
+	*/
+	public function add($key, $value = NULL)
+	{
+		// Process an array of keys
+		if (is_array($key))
+		{
+			foreach ($key as $k => $v)
+			{
+				$this->add($k, $v);
+			}
+			return $this;
+		}
+
+		// Process a single key and array value
+		if (is_array($value) AND is_array($this->{$key}))
+		{
+			$this->{$key} = Arr::merge($this->{$key}, $value);
+			return $this;
+		}
+ 
+		// process a single key
+		$this->{$key} = $value;
+		return $this;
+	}
+	
+	/**
+	* Sets the head title
+	* @param string The title string
+	* @return Head
+	*/
+	public function set_title($value)
+	{
+		return $this->add('title', $value);
 	}
 
 	// Private meta methods
@@ -217,53 +302,63 @@ class Head {
 		}
 		return $meta_extra;
 	}
-	
+
+	private function _get_cached_scripts()
+	{
+		$data = $this->merged_scripts;
+ 		$key = sha1($data);
+ 		$cache = Kohana::cache($key);
+ 		if ($cache == NULL)
+ 		{
+ 			Kohana::cache($key, $data, Kohana::config('xhtml.cache_lifetime'));
+ 			$cache = Kohana::cache($key);
+ 		}
+		return 'xhtml/cache/'.$key.'/xhtml.cache.js';
+	}
+
 	/**
-	* Returns an array of all meta entries
-	* @return array
+	* Merges scripts
+	*
 	*/
-// 	private function _get_meta_all()
-// 	{
-// 		return Arr::merge(self::$meta, $this->_get_meta_extra());
-// 	}
+	private function _get_merged_scripts()
+	{
+		$html = '';
+		foreach ($this->scripts as $file)
+		{
+			$html .= file_get_contents($file);//Html::script($file);
+		}
+		foreach ($this->codes as $code)
+		{
+			//$html .= '<script'.Html::attributes(array('type' => 'text/javascript')).'>//<![CDATA['."\n".$value."\n".'//]]></script>';
+			$html .= $code;
+		}
+		return $html;
+	}
 
-// 	// Private script methods
-// 
-// 	/**
-// 	 * Returns an array of extra script entries
-// 	 * @return  array
-// 	 */
-// 	private function _get_scripts_extra()
-// 	{
-// 		// include detected headers specified
-// 		$scripts_extra = array();
-// 		foreach (self::$codes as $key => $value)
-// 			$scripts_extra[$key] = 
-// 		}
-// 		return $scripts_extra;
-// 	}
-// 	
-// 	/**
-// 	* Returns an array of all script entries
-// 	* @return  array
-// 	*/
-// 	private function _get_scripts_all()
-// 	{
-// 		return Arr::merge(self::$scripts, $this->_get_scripts_extra());
-// 	}
+	private function _get_cached_styles()
+	{
+		$data = $this->merged_styles;
+ 		$key = sha1($data);
+ 		$cache = Kohana::cache($key);
+ 		if ($cache == NULL)
+ 		{
+ 			Kohana::cache($key, $data, Kohana::config('xhtml.cache_lifetime'));
+ 			$cache = Kohana::cache($key);
+ 		}
+		return 'xhtml/cache/'.$key.'/xhtml.cache.css';
+	}
 
-
-// 	public function add_link($type, $message)
-// 	{
-// 		// Create a new message and timestamp it
-// 		$this->_messages[] = array
-// 		(
-// 			'time' => date(self::$timestamp),
-// 			'type' => $type,
-// 			'body' => $message,
-// 		);
-// 
-// 		return $this;
-// 	}	
-
+	/**
+	* Merges styles
+	*
+	*/
+	private function _get_merged_styles()
+	{
+		$html = '';
+		foreach ($this->styles as $file)
+		{
+			$html .= file_get_contents($file);//Html::script($file);
+		}
+		return $html;
+	}	
 } // End Head

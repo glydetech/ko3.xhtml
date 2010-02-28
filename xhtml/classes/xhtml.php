@@ -76,9 +76,6 @@ class Xhtml {
 					self::${$key} = $default[$key];
 			}
 
-			// overwrite langcode from i18n if not set
-			if (!isset(self::$langcode))
-				self::$langcode = i18n::$lang;
 		}
 		return self::$_instance;
 	}
@@ -118,6 +115,9 @@ class Xhtml {
 			case 'htmlatts_extra':
 			case 'htmlatts_all':
 			case 'is_xhtml':
+			case 'lang':
+			case 'charset':
+			case 'contenttype':
 				$func = '_get_'.$key;
 				return $this->{$func}();
 		}
@@ -182,8 +182,30 @@ class Xhtml {
 			return '';
 		}
 	}
-	
+
 	// Public methods
+
+	/**
+	* Sets document type
+	* @param string Document type - one of Xhtml::DOCTYPE_* constants
+	* @return Head
+	*/
+	public function set_doctype($doctype)
+	{
+		$this->doctype = $doctype;
+		return $this;
+	}
+	
+	/**
+	* Sets language code
+	* @param string Language code
+	* @return Head
+	*/
+	public function set_langcode($langcode)
+	{
+		$this->langcode = $langcode;
+		return $this;
+	}
 
 	/**
 	* Returns the rendered head tag
@@ -193,17 +215,27 @@ class Xhtml {
 	public function render($output = false)
 	{
 		// Set content-type header
-		if (self::instance()->is_xhtml
-		AND Request::accept_type('application/xhtml+xml') > 0)
-		{
-			Request::instance()->headers['Content-Type'] = 'application/xhtml+xml; charset='.Kohana::$charset;
-		}
-	
+		//Header('Content-Type: '.$this->contenttype.';; charset='.$this->charset);
+		Request::instance()->headers['Content-Type'] = $this->contenttype.'; charset='.$this->charset;
 		$html = $this->xhtml_doctype;
 		$html .= '<html'.Html::attributes($this->htmlatts_all).'>';
 		$html .= Head::instance();
 		$html .= '<body>'.$this->body.'</body>';
 		$html .= '</html>';
+		
+		// Tidy
+		if (extension_loaded('tidy') AND Kohana::config('xhtml.tidy_output'))
+		{
+			$tidyconfig = Kohana::config('xhtml.tidy_config');
+			//$tidyconfig['output-xml'] = true;
+			$charset = str_replace('-', '', $this->charset); 
+			$tidy = new tidy();
+			$tidy->parseString($html, $tidyconfig, $charset);
+			$tidy->cleanRepair();
+			$html = (string)$tidy;
+		}
+		
+		//Output
 		if ($output)
 			echo $html;
 		return $html;
@@ -236,29 +268,73 @@ class Xhtml {
 		}
 	}
 
+	/**
+	* Gets extra html attributes
+	* @return array 
+	*/
 	private function _get_htmlatts_extra()
 	{
 		$attributes_extra = array();
 		if ($this->is_xhtml)
 		{
 			$attributes_extra['xmlns'] = 'http://www.w3.org/1999/xhtml';
-			$attributes_extra['xml:lang'] = self::$langcode;
+			$attributes_extra['xml:lang'] = $this->lang;
 		}
-		else
-		{
-			$attributes_extra['lang'] = self::$langcode;
-		}
+		$attributes_extra['lang'] = $this->lang;
 		return $attributes_extra;
 	}
 
+	/**
+	* Gets all html attributes
+	* @return array
+	*/
 	private function _get_htmlatts_all()
 	{
 		return Arr::merge(self::$htmlatts, $this->_get_htmlatts_extra());
 	}
-	
+
+	/**
+	* Gets flag indicating xhtml
+	* @return bool
+	*/
 	private function _get_is_xhtml()
 	{
 		return substr(self::$doctype, 0, 1) == 'X';
+	}
+
+	/**
+	* Gets current language code - uses I18n if unset in Xhtml
+	* @return string 
+	*/
+	private function _get_lang()
+	{
+		if (isset($this->langcode))
+		{
+			return $this->langcode;
+		}
+		return I18n::$lang;
+	}
+	
+	/**
+	* Gets the current charset from Kohana
+	* @return string
+	*/
+	private function  _get_charset()
+	{
+		return Kohana::$charset;
+	}
+	
+	/**
+	* Gets the content type based on what's accepted
+	* @return string
+	*/
+	private function _get_contenttype()
+	{
+		if ($this->is_xhtml AND Request::accept_type('application/xhtml+xml') > 0)
+		{
+			return 'application/xhtml+xml';
+		}
+		return 'text/html';
 	}
 
 } // End Xhtml

@@ -32,7 +32,7 @@ return array(
 			'title'		=> 'default title',
 			
 			// Meta tags
-			'meta' => array(
+			'metas' => array(
 				//'keywords'		=> 'keywords',
 				//'description'	=> 'description of site',
 			),
@@ -65,7 +65,38 @@ return array(
 	
 	// include meta tags detected from headers, can be null
 	// array('content-type', 'expires')
-	'meta_include_headers'	=> array('content-type'),
+	'meta_include_headers'	=> array('content-type', 'content-language', 'expires'),
+	
+	// cache and merge scripts and codes, styles
+	'cache_scripts' => false,
+	'cache_styles' => false,
+	'cache_lifetime' => 600,
+
+	// tidy output
+	// see full details here: http://tidy.sourceforge.net/docs/quickref.html
+	'tidy_output' => false,
+	'tidy_config' => array(
+		'indent' => true,
+		//'output-xhtml' => true,
+		//'input-xhtml' => true,
+		//'input-xml' => true,
+		//'output-xml' => true,
+		//'new-pre-tags' => 'textarea',
+		//"clean" => true,
+		//"drop-proprietary-attributes" => true,
+		//"drop-font-tags" => true,
+		//"drop-empty-paras" => true,
+		//"hide-comments" => true,
+		//"join-classes" => true,
+		//"join-styles" => true,
+		//"indent" => false,
+		//"bare" => true,
+		//"indent-spaces" => false,
+		//"tab-size" => 0,
+		"wrap" => 0,
+		//"quote-ampersand" => '0',
+		//'preserve-entities' => true,
+	)
 
 );
 

@@ -90,3 +90,59 @@ Xhtml
  - In render, detect accept headers for determining content type
 
 Version 0.4
+
+2010-02-20
+----------
+Head
+ - Added $data parameter to instance()
+ - Changed the $meta property to $metas
+ - Added the add() method, chainable
+ - Added the set_title() method, chainable
+ - Added the __call() method to provide add_*() methods, chainable
+Xhtml
+ - Added the set_doctype() method, chainable
+ - Added the set_langcode() method, chainable
+ - Added the lang, charset and contenttype properties
+ - Changed _get_htmlatts_extra() to use both lang and xml:lang for xhtml
+ - Changed render() to get values from properties
+ - Added merged_scripts and cached_scripts properties
+ - Modified render() method to serve the cached script file
+Config File
+ - Added content-language to default headers to include in meta
+Xhtml Controller
+ - Added this controller to serve the cached files
+ - Added action_cache() which takes a key and serves the cached file
+
+2010-02-21
+----------
+Head
+ - Added config check for including merged and cached scripts
+Xhtml
+ - Added code for php tidy extension with configuration
+Config file
+ - Added cache_script, cache_lifetime, tidy_output, tidy_config
+
+Version 0.5
+
+2010-02-25
+----------
+Config file
+ - Added cache_style option
+Head
+ - Added handling for style caching
+Xhtml_Controller
+ - Added correct headers for css
+ 
+Version 0.5.1
+
+TODO:
+-----
+ - Cache files are not being cleared because the key is generated from the javascript - would generating from the uri be better?
+ - Tested tiny_browser standalone with caching
+     Failed because there is php in the file so relative paths are no good.
+     Had to send the file into codes instead to get it working
+ - Auto-set the correct config options for tidy 
+    Had some trouble with this
+	May move to a php only library (htmLawed: http://bioinformatics.org/phplabware/internal_utilities/htmLawed )
+ - Style background images are often relative - parse and replace these with absolutes
+ 

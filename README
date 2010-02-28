@@ -18,7 +18,7 @@ Version 0.1 (2010-01-25)
 Version 0.3 (2010-02-01)
  - Recoded to use extended views instead of extended template controller
  
-Version 0.4 (2010-02-07
+Version 0.4 (2010-02-07)
  - Recoded to use main Xhtml and Head classes instead of extended views
  - Wrapped all inline scripts with CDATA
  - Adjust tags without content to use appropriate closing syntax based on content type
@@ -26,3 +26,9 @@ Version 0.4 (2010-02-07
  - Adjusted to use only lang or xml:lang in html tag based on content type
  - Detected the accept headers for content type determination
 
+Version 0.5.1 (2010-02-28)
+ - Added defaults array to Head instance
+ - Added chainable functions
+ - Added merged and cached scripts and styles
+ - Added controller for serving caches
+ - Added tidy
