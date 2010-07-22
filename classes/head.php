@@ -5,6 +5,7 @@
 * @package    Xhtml
 * @author     Andrew Clarke
 * @copyright  (c) 2010 Andrew Clarke
+* @modified	2010-07-14 23:21
 */
 class Head {
 
@@ -217,7 +218,37 @@ class Head {
 		else
 		{		
 			foreach ($this->styles as $value)
-				$html .= Html::style($value);
+			{
+				$style_file = NULL;
+				$style_atts = array();
+				$style_cond = NULL;
+				if (is_string($value))
+				{
+					$style_file = $value;
+				}
+				elseif (is_array($value))
+				{
+					if (isset($value['file']))
+					{
+						$style_file = $value['file'];
+						unset($value['file']);
+					}
+					if (isset($value['condition']))
+					{
+						$style_cond = $value['condition'];
+						unset($value['condition']);
+					}
+					$style_atts = $value;
+				}
+				if ($style_file)
+				{
+					if ($style_cond)
+						$html .= '<!--[if '.$style_cond.']>';
+					$html .= Html::style($style_file, $style_atts);
+					if ($style_cond)
+						$html .= '<![endif]-->';
+				}
+			}
 		}
 		
 		// scripts

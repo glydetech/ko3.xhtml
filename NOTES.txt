@@ -144,9 +144,17 @@ Controller_Xhtml
  - Modified this to parse the supplied key and extension correctly
  
 Version 0.5.2
+
+2010-07-14
+----------
+Head
+ - Modified render() to handle styles defined in an array with 'condition', 'file' and other attributes
+
+Version 0.5.3
  
 TODO:
 -----
+ - In Head, merged_styles and cached_styles don't handle the new array format for styles (conditionals cant be merged with non-conditionals)
  - Cache files are not being cleared because the key is generated from the javascript - would generating from the uri be better?
  - Tested tiny_browser standalone with caching
      Failed because there is php in the file so relative paths are no good.
