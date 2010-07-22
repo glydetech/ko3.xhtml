@@ -35,3 +35,6 @@ Version 0.5.1 (2010-02-28)
  
 Version 0.5.2 (2010-02-28)
  - Quick fix for caches using Kohanas default route setup
+
+Version 0.5.3 (2010-07-22)
+ - Modified Head to handle styles defined in an array with 'condition', 'file' and other attributes
