@@ -15,11 +15,11 @@ class Xhtml {
 	const DOCTYPE_HTML_4_01_TRANSITIONAL	= 'HTML 4.01 TRANSITIONAL';
 	const DOCTYPE_XHTML_1_0_STRICT			= 'XHTML 1.0 STRICT';
 	const DOCTYPE_XHTML_1_0_FRAMESET		= 'XHTML 1.0 FRAMESET';
-	const DOCTYPE_XHTML_1_0_TRANSITIONAL	= 'XHTML 1.0 TRANSITIONAL'; 
+	const DOCTYPE_XHTML_1_0_TRANSITIONAL	= 'XHTML 1.0 TRANSITIONAL';
 	const DOCTYPE_XHTML_1_1_STRICT			= 'XHTML 1.1 STRICT';
-	
+
 	// Public static properites
-	
+
 	/**
 	* @var string HTML document type, one of xhtml::DOCTYPE_* constants
 	*/
@@ -39,7 +39,7 @@ class Xhtml {
 	* @var Head Instance of Head class
 	*/
 	public static $head;
-	
+
 	/**
 	* @var View Body view
 	*/
@@ -51,9 +51,9 @@ class Xhtml {
 	* @var Xhtml Singleton instance
 	*/
 	protected static $_instance;
-	
+
 	// Singleton methods
-	
+
 	/**
 	* Get the singleton instance of Xhtml.
 	* @return  Xhtml
@@ -64,10 +64,10 @@ class Xhtml {
 		{
 			// Create a new instance
 			self::$_instance = new self($file);
-			
+
 			// Set instance of Head class
 			self::$head = Head::instance();
-			
+
 			// Set defaults from config
 			$default = Kohana::config('xhtml.default');
 			foreach (array('doctype', 'langcode', 'htmlatts', 'body') as $key)
@@ -99,9 +99,9 @@ class Xhtml {
 	final private function __clone()
 	{
 	}
-	
+
 	// Magic methods
-	
+
 	/**
 	* Magic method, gets overridden or static properties
 	* @param string Property name
@@ -144,7 +144,7 @@ class Xhtml {
 	{
 		if (is_array(self::${$key}))
 		{
-			return ! empty(self::${$key}); 
+			return ! empty(self::${$key});
 		}
 		return (isset(self::${$key}));
 	}
@@ -195,7 +195,7 @@ class Xhtml {
 		$this->doctype = $doctype;
 		return $this;
 	}
-	
+
 	/**
 	* Sets language code
 	* @param string Language code
@@ -216,25 +216,25 @@ class Xhtml {
 	{
 		// Set content-type header
 		//Header('Content-Type: '.$this->contenttype.';; charset='.$this->charset);
-		Request::instance()->headers['Content-Type'] = $this->contenttype.'; charset='.$this->charset;
+		Request::current()->headers['Content-Type'] = $this->contenttype.'; charset='.$this->charset;
 		$html = $this->xhtml_doctype;
 		$html .= '<html'.Html::attributes($this->htmlatts_all).'>';
 		$html .= Head::instance();
 		$html .= '<body>'.$this->body.'</body>';
 		$html .= '</html>';
-		
+
 		// Tidy
 		if (extension_loaded('tidy') AND Kohana::config('xhtml.tidy_output'))
 		{
 			$tidyconfig = Kohana::config('xhtml.tidy_config');
 			//$tidyconfig['output-xml'] = true;
-			$charset = str_replace('-', '', $this->charset); 
+			$charset = str_replace('-', '', $this->charset);
 			$tidy = new tidy();
 			$tidy->parseString($html, $tidyconfig, $charset);
 			$tidy->cleanRepair();
 			$html = (string)$tidy;
 		}
-		
+
 		//Output
 		if ($output)
 			echo $html;
@@ -242,7 +242,7 @@ class Xhtml {
 	}
 
 	// Private methods - generated properties
-	
+
 	/**
 	* Returns the doctype string
 	* @return string
@@ -270,7 +270,7 @@ class Xhtml {
 
 	/**
 	* Gets extra html attributes
-	* @return array 
+	* @return array
 	*/
 	private function _get_htmlatts_extra()
 	{
@@ -304,7 +304,7 @@ class Xhtml {
 
 	/**
 	* Gets current language code - uses I18n if unset in Xhtml
-	* @return string 
+	* @return string
 	*/
 	private function _get_lang()
 	{
@@ -314,7 +314,7 @@ class Xhtml {
 		}
 		return I18n::$lang;
 	}
-	
+
 	/**
 	* Gets the current charset from Kohana
 	* @return string
@@ -323,7 +323,7 @@ class Xhtml {
 	{
 		return Kohana::$charset;
 	}
-	
+
 	/**
 	* Gets the content type based on what's accepted
 	* @return string
