@@ -38,3 +38,8 @@ Version 0.5.2 (2010-02-28)
 
 Version 0.5.3 (2010-07-22)
  - Modified Head to handle styles defined in an array with 'condition', 'file' and other attributes
+
+Version 0.5.4 (2011-06-08)
+ - Merged 3.1 version changes by emtou to master
+ - Made all references to current request agnostic by detecting current version
+

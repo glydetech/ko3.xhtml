@@ -151,7 +151,18 @@ Head
  - Modified render() to handle styles defined in an array with 'condition', 'file' and other attributes
 
 Version 0.5.3
- 
+
+2011-06-08
+----------
+Head & Xhtml
+- Merged 3.1 version compatibility changes from emtou
+Head
+- Modified _get_meta_extra() to detect version to accommodate Kohana 3.1 changes in Request API
+Xhtml 
+- Modified render() to detect version to accommodate Kohana 3.1 changes in Request API
+
+Version 0.5.4
+
 TODO:
 -----
  - In Head, merged_styles and cached_styles don't handle the new array format for styles (conditionals cant be merged with non-conditionals)
