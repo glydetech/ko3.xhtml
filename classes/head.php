@@ -25,12 +25,12 @@ class Head {
 	* @var array Head link tags
 	*/
 	public static $links = array();
-	
+
 	/**
 	* @var array Head style tags
 	*/
 	public static $styles = array();
-	
+
 	/**
 	* @var array Head script tags
 	*/
@@ -109,7 +109,7 @@ class Head {
 			//case 'meta_all':
 				$func = '_get_'.$key;
 				return $this->{$func}();
-		}	
+		}
 		return self::${$key};
 	}
 
@@ -133,7 +133,7 @@ class Head {
 	{
 		if (is_array(self::${$key}))
 		{
-			return ! empty(self::${$key}); 
+			return ! empty(self::${$key});
 		}
 		return (isset(self::${$key}));
 	}
@@ -209,14 +209,14 @@ class Head {
 			$html .= '<meta'.Html::attributes(array('name' => $key, 'content' => $value)).$close_single;
 		foreach ($this->links as $value)
 			$html .= '<link'.Html::attributes($value).$close_single;
-			
+
 		// styles
 		if (Kohana::config('xhtml.cache_styles'))
 		{
 			$html .= Html::style($this->cached_styles);
 		}
 		else
-		{		
+		{
 			foreach ($this->styles as $value)
 			{
 				$style_file = NULL;
@@ -250,7 +250,7 @@ class Head {
 				}
 			}
 		}
-		
+
 		// scripts
 		if (Kohana::config('xhtml.cache_scripts'))
 		{
@@ -263,7 +263,7 @@ class Head {
 			foreach ($this->codes as $code)
 				$html .= '<script'.Html::attributes(array('type' => 'text/javascript')).'>//<![CDATA['."\n".$code."\n".'//]]></script>';
 		}
-		
+
 		$html .= '</head>';
 		if ($output)
 			echo $html;
@@ -294,12 +294,12 @@ class Head {
 			$this->{$key} = Arr::merge($this->{$key}, $value);
 			return $this;
 		}
- 
+
 		// process a single key
 		$this->{$key} = $value;
 		return $this;
 	}
-	
+
 	/**
 	* Sets the head title
 	* @param string The title string
@@ -323,7 +323,7 @@ class Head {
 		$includes = Kohana::config('xhtml.meta_include_headers');
 		if ($includes)
 		{
-			foreach (Request::instance()->headers as $key => $value)
+			foreach (Request::current()->headers as $key => $value)
 			{
 				if (in_array(strtolower($key), $includes))
 				{
@@ -391,5 +391,5 @@ class Head {
 			$html .= file_get_contents($file);//Html::script($file);
 		}
 		return $html;
-	}	
+	}
 } // End Head
