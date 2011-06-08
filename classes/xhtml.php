@@ -216,7 +216,13 @@ class Xhtml {
 	{
 		// Set content-type header
 		//Header('Content-Type: '.$this->contenttype.';; charset='.$this->charset);
-		Request::current()->headers['Content-Type'] = $this->contenttype.'; charset='.$this->charset;
+		if (substr(Kohana::VERSION, 0, 3) == '3.0')
+		{
+			$request = Request::instance();
+		} else {
+			$request = Request::current();
+		}
+		$request->headers['Content-Type'] = $this->contenttype.'; charset='.$this->charset;
 		$html = $this->xhtml_doctype;
 		$html .= '<html'.Html::attributes($this->htmlatts_all).'>';
 		$html .= Head::instance();

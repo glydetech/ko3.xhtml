@@ -323,7 +323,13 @@ class Head {
 		$includes = Kohana::config('xhtml.meta_include_headers');
 		if ($includes)
 		{
-			foreach (Request::current()->headers as $key => $value)
+			if (substr(Kohana::VERSION, 0, 3) == '3.0')
+			{
+				$request = Request::instance();
+			} else {
+				$request = Request::current();
+			}
+			foreach ($request->headers as $key => $value)
 			{
 				if (in_array(strtolower($key), $includes))
 				{
