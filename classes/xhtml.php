@@ -58,7 +58,7 @@ class Xhtml {
 	* Get the singleton instance of Xhtml.
 	* @return  Xhtml
 	*/
-	public static function instance($file = NULL)
+	public static function instance($file = NULL, $config_name = 'default')
 	{
 		if (self::$_instance === NULL)
 		{
@@ -66,10 +66,10 @@ class Xhtml {
 			self::$_instance = new self($file);
 
 			// Set instance of Head class
-			self::$head = Head::instance();
+			self::$head = Head::instance(array(), $config_name);
 
 			// Set defaults from config
-			$default = Kohana::config('xhtml.default');
+			$default = Kohana::config('xhtml.'.$config_name);
 			foreach (array('doctype', 'langcode', 'htmlatts', 'body') as $key)
 			{
 				if (isset($default[$key]) AND !empty($default[$key]))
