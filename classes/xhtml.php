@@ -178,7 +178,12 @@ class Xhtml {
 		catch (Exception $e)
 		{
 			// Display the exception message
-			Kohana::exception_handler($e);
+			if (substr(Kohana::VERSION, 0, 3) == '3.0')
+			{
+				Kohana::exception_handler($e);
+			} else {
+				Kohana_Exception::handler($e);
+			}
 			return '';
 		}
 	}
