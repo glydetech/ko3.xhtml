@@ -55,7 +55,7 @@ class Head {
 	* @param array Default values
 	* @return Head
 	*/
-	public static function instance(array $data = array())
+	public static function instance(array $data = array(), $config_name = 'default')
 	{
 		// Check if instance exists
 		if (self::$_instance === NULL)
@@ -65,7 +65,7 @@ class Head {
 			self::$_instance = new self;
 
 			// Add values from config file
-			self::$_instance->add(Kohana::config('xhtml.default.head'));
+			self::$_instance->add(Kohana::config('xhtml.'.$config_name.'.head'));
 		}
 
 		// Add values from supplied data
@@ -167,7 +167,12 @@ class Head {
 		catch (Exception $e)
 		{
 			// Display the exception message
-			Kohana::exception_handler($e);
+			if (substr(Kohana::VERSION, 0, 3) == '3.0')
+			{
+				Kohana::exception_handler($e);
+			} else {
+				Kohana_Exception::handler($e);
+			}
 			return '';
 		}
 	}
